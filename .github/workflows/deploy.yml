@@ -1,0 +1,38 @@
+# Har push par: test chalao, phir "deploy" branch banao (vendor ke saath).
+# Cloudways > Deployment via Git > branch: deploy  -> ek click mein server par.
+name: build-and-deploy-branch
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, openssl, pdo_mysql, pdo_sqlite, curl
+          tools: composer:v2
+      - name: Composer install (no dev)
+        run: composer update --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+      - name: Tests
+        run: |
+          cp .env.example .env
+          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          php artisan key:generate --force
+          php artisan package:discover
+          for t in tests/*_test.php; do echo "== $t"; php "$t"; done
+      - name: Push deploy branch
+        run: |
+          rm .env
+          git config user.name "headford-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git checkout --orphan deploy-tmp
+          sed -i '/^\/vendor$/d' .gitignore
+          git add -A
+          git commit -qm "deploy build ${GITHUB_SHA::7}"
+          git push -f origin HEAD:deploy
