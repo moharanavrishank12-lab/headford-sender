@@ -34,7 +34,7 @@ $r = Request::create('/', 'GET', [], [config('session.cookie') => $sess->getId()
 $app = app(); $app['session']->driver()->setId($sess->getId());
 Account::create(['email' => 'anna@cold1.com', 'from_name' => 'Anna', 'status' => 'active', 'daily_cap' => 20, 'ramp_start' => '2026-10-01']);
 Reply::create(['gmail_id' => 'q1', 'kind' => 'reply', 'from_email' => 'x@y.com', 'body' => 'who?', 'action' => 'HAATH SE DEKHO - samajh nahi aaya', 'class' => 'UNCLEAR']);
-$html = view('home', ['s' => App\Services\Stats::summary(), 'alerts' => ['stock' => ['msg' => 'Stock kam', 'at' => now()->toIso8601String()]], 'review' => Reply::all(), 'replies' => Reply::all(), 'positives' => Lead::whereNotNull('lead_no')->get(), 'settings' => ['company_line' => 'HeadFord', 'address' => '']])->render();
+$html = view('home', ['s' => App\Services\Stats::summary(), 'alerts' => ['stock' => ['msg' => 'Stock kam', 'at' => now()->toIso8601String()]], 'review' => Reply::all(), 'replies' => Reply::all(), 'positives' => Lead::whereNotNull('lead_no')->get(), 'gkey' => null, 'settings' => ['company_line' => 'HeadFord', 'address' => '']])->render();
 ok(str_contains($html, 'anna@cold1.com') && str_contains($html, 'Haath se dekho') && str_contains($html, 'Stock kam'), 'dashboard page banta hai');
 ok(str_contains(view('login')->render(), 'Password'), 'login page');
 // health + backup
