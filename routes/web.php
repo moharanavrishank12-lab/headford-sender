@@ -18,6 +18,8 @@ Route::middleware(DashAuth::class)->group(function () {
     Route::post('/accounts', [D::class, 'addAccounts']);
     Route::post('/settings', [D::class, 'settings']);
     Route::post('/reply/{reply}', [D::class, 'decide']);
+    Route::post('/setup/google-key', [D::class, 'googleKey']);
+    Route::post('/setup/check', [D::class, 'check']);
 });
 
 Route::prefix('api')->middleware(ApiToken::class)->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class])->group(function () {

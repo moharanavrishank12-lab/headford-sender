@@ -4,7 +4,7 @@
 return [
     'api_token' => env('SENDER_API_TOKEN'),                 // PC is token se data bhejta/leta hai
     'dashboard_password' => env('DASHBOARD_PASSWORD'),      // dashboard login
-    'google_sa_json' => env('GOOGLE_SA_JSON', storage_path('app/private/google-sa.json')),
+    'google_sa_json' => env('GOOGLE_SA_JSON') ?: storage_path('app/private/google-sa.json'),
     'claude_key' => env('CLAUDE_API_KEY'),
     'claude_model' => env('CLAUDE_MODEL', 'claude-haiku-5-5'),
     'report_email' => env('REPORT_EMAIL', 'jiten.headford@gmail.com'),

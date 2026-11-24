@@ -61,6 +61,7 @@ class DashboardController extends Controller
             'review' => Reply::where('action', 'like', 'HAATH SE%')->latest()->limit(30)->get(),
             'replies' => Reply::where('kind', 'reply')->latest()->limit(30)->get(),
             'positives' => Lead::whereNotNull('lead_no')->orderByDesc('lead_no')->limit(20)->get(),
+            'gkey' => is_file(config('sender.google_sa_json')) ? (json_decode((string) file_get_contents(config('sender.google_sa_json')), true)['client_id'] ?? 'hai') : null,
             'settings' => ['company_line' => Setting::get('company_line', 'HeadFord'), 'address' => Setting::get('address', '')],
         ]);
     }
@@ -131,5 +132,30 @@ class DashboardController extends Controller
         }
 
         return response('<html><body style="font-family:sans-serif;max-width:480px;margin:60px auto">You have been unsubscribed. You will not hear from us again.</body></html>');
+    }
+
+    public function googleKey(Request $r)
+    {
+        $f = $r->file('key');
+        if (! $f || $f->getSize() > 20000) {
+            return back()->with('msg', 'JSON file chuno (Google Cloud se download ki hui).');
+        }
+        $j = json_decode((string) file_get_contents($f->getRealPath()), true);
+        if (! is_array($j) || ($j['type'] ?? '') !== 'service_account' || empty($j['client_email']) || empty($j['private_key'])) {
+            return back()->with('msg', 'Yeh service account key nahi lagti. Google Cloud > Service account > Keys > JSON wali file chahiye.');
+        }
+        $path = config('sender.google_sa_json');
+        @mkdir(dirname($path), 0700, true);
+        file_put_contents($path, json_encode($j));
+        @chmod($path, 0600);
+
+        return back()->with('msg', 'Google key save ho gayi: '.$j['client_email'].' (Client ID: '.($j['client_id'] ?? '?').'). Ab "Sab IDs check karo" dabao.');
+    }
+
+    public function check()
+    {
+        \Illuminate\Support\Facades\Artisan::call('sender:check');
+
+        return back()->with('msg', trim(\Illuminate\Support\Facades\Artisan::output()));
     }
 }

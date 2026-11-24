@@ -1,7 +1,7 @@
 @extends('layout')
 @section('body')
 <div style="display:flex;justify-content:space-between;align-items:center"><h1>HeadFord Sender (cloud)</h1><a href="/logout">Logout</a></div>
-@if(session('msg'))<div class="msg">{{ session('msg') }}</div>@endif
+@if(session('msg'))<div class="msg" style="white-space:pre-wrap">{{ session('msg') }}</div>@endif
 @foreach($alerts as $k => $a)<div class="alert">⚠ {{ $a['msg'] }} <span class="muted">({{ \Carbon\Carbon::parse($a['at'])->diffForHumans() }})</span></div>@endforeach
 <div class="grid" style="margin-bottom:14px">
   <div class="tile"><span class="muted">Aaj bheje (follow-up milake)</span><b>{{ $s['sent_today'] }} / {{ $s['cap_day'] }}</b></div>
@@ -36,6 +36,10 @@
 @foreach($positives as $l)<tr><td>{{ $l->lead_no }}</td><td>{{ $l->domain }}<div class="muted">{{ $l->first_name }} {{ $l->last_name }}</div></td><td>{{ $l->email }}</td><td>{{ $l->status }}</td></tr>@endforeach</table></div>
 <div class="box"><h2>Aakhri replies</h2><table>
 @foreach($replies as $r)<tr><td>{{ $r->from_email }}<div class="muted">{{ $r->created_at->diffForHumans() }}</div></td><td>{{ $r->class }}</td><td>{{ $r->summary }}</td><td>{{ $r->action }}</td></tr>@endforeach</table></div>
+<div class="box"><h2>Setup</h2>
+<div>Google key: @if ($gkey) <b>lagi hui</b> (Client ID: {{ $gkey }} - yahi Workspace admin mein daalna hai) @else <b style="color:#b00">abhi nahi</b> @endif</div>
+<form method="post" action="/setup/google-key" enctype="multipart/form-data" style="margin:6px 0">@csrf<input type="file" name="key" accept=".json"> <button>Google key upload</button></form>
+<form method="post" action="/setup/check">@csrf<button>Sab IDs check karo</button> <span class="muted">Har ID ka Google access test (koi email nahi jaati).</span></form></div>
 <div class="box"><h2>Signature (har email ke neeche)</h2><form method="post" action="/settings">@csrf
 <div class="muted">Naam = ID ka naam. Neeche company line aur address (US niyam ke liye address zaroori).</div>
 <input name="company_line" value="{{ $settings['company_line'] }}" placeholder="HeadFord" style="width:100%;margin:4px 0">
