@@ -1,6 +1,7 @@
 <?php
 require __DIR__.'/boot.php'; require __DIR__.'/FakeGmail.php';
 use App\Models\{Account, Lead, Send, Suppression, Event}; use App\Services\SendEngine; use Carbon\Carbon; use Carbon\CarbonImmutable;
+App\Models\Setting::put('address', '');
 $g = new FakeGmail(); app()->instance(App\Services\GmailClient::class, $g);
 $eng = app(SendEngine::class);
 // Tue 24 Nov 2026, 8:30 AM ET = East window khula
@@ -11,6 +12,9 @@ $mk = fn ($d, $z = 'E', $g = 'B', $v = '2026-11-20') => Lead::create(['domain' =
 for ($i = 1; $i <= 30; $i++) $mk("shop$i.com");
 $mk('west1.com', 'W'); $mk('old1.com', 'E', 'A', '2026-09-01'); $mk('blocked1.com', 'E', 'A');
 Suppression::add('blocked1.com', 'unsubscribe', 'pc');
+$r = $eng->tick();
+ok($r['sent'] === 0 && ($r['note'] ?? '') === 'address nahi' && isset(App\Services\Alerts::all()['address']), 'address nahi = koi email nahi + alert');
+App\Models\Setting::put('address', '123 Test St, Brooklyn, NY');
 $r = $eng->tick();
 ok($r['sent'] === 2, 'pehla tick: dono IDs ne 1-1 bheja');
 ok(Lead::where('domain', 'old1.com')->value('status') === 'stale', '30 din purana verify = stale (bheja nahi)');

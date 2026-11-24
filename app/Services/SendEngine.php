@@ -62,6 +62,12 @@ class SendEngine
         if (! $zones) {
             return $out + ['note' => 'koi window khula nahi'];
         }
+        if (trim((string) \App\Models\Setting::get('address', '')) === '') {
+            Alerts::raise('address', 'Signature mein business address nahi hai - jab tak nahi daaloge, koi email nahi jayegi (US CAN-SPAM).');
+
+            return $out + ['note' => 'address nahi'];
+        }
+        Alerts::clear('address');
         $gapMin = Calendar::windowMinutes() * 0.85;
         foreach (Account::where('status', 'active')->orderBy('last_sent_at')->get() as $a) {
             $cap = $this->capToday($a);
