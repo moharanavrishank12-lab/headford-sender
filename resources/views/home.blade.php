@@ -28,7 +28,7 @@
 <td class="{{ $a['status'] === 'active' ? 'ok' : 'bad' }}">{{ $a['status'] }}@if($a['paused_reason'])<div class="muted">{{ $a['paused_reason'] }}</div>@endif @if($a['error'])<div class="muted bad">{{ \Illuminate\Support\Str::limit($a['error'], 120) }}</div>@endif</td>
 <td>{{ $a['today'] }} / {{ $a['cap'] }}</td><td>{{ $a['sent7'] }}</td><td class="{{ $a['bounce_pct'] > 3 ? 'bad' : '' }}">{{ $a['bounce7'] }} ({{ $a['bounce_pct'] }}%)</td>
 <td>{{ $a['last_sent'] ?? '-' }}<div class="muted">inbox: {{ $a['checked'] ?? '-' }}</div></td>
-<td><form method="post" action="/account/{{ $a['id'] }}">@csrf<input type="hidden" name="do" value="{{ $a['status'] === 'active' ? 'pause' : 'resume' }}"><button>{{ $a['status'] === 'active' ? 'Roko' : 'Chalu karo' }}</button></form></td></tr>@endforeach
+<td><form method="post" action="/account/{{ $a['id'] }}" style="display:inline">@csrf<input type="hidden" name="do" value="{{ $a['status'] === 'active' ? 'pause' : 'resume' }}"><button>{{ $a['status'] === 'active' ? 'Roko' : 'Chalu karo' }}</button></form> <form method="post" action="/account/{{ $a['id'] }}" style="display:inline" onsubmit="return confirm('Yeh ID hata dein? ({{ $a['email'] }})')">@csrf<input type="hidden" name="do" value="remove"><button style="color:#b00">Hatao</button></form></td></tr>@endforeach
 </table>
 <details style="margin-top:10px"><summary>IDs jodo</summary><form method="post" action="/accounts">@csrf<div class="muted">Har line: email, naam (jaise: anna@coldmail1.com, Anna Lee). Nayi ID 5/din se shuru hoke roz +3 (20 tak).</div>
 <textarea name="lines" rows="6" style="width:100%"></textarea><button>Jodo</button></form></details></div>

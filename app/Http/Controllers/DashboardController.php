@@ -76,6 +76,8 @@ class DashboardController extends Controller
             Alerts::clear('bounce_'.$account->id);
         } elseif ($act === 'cap') {
             $account->update(['daily_cap' => max(1, min(50, (int) $r->input('cap')))]);
+        } elseif ($act === 'remove') {
+            $account->delete();
         }
 
         return back();
