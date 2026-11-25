@@ -42,4 +42,16 @@ Illuminate\Support\Facades\Artisan::call('sender:health', ['--print' => true]); 
 ok(str_contains($out, 'roz ki report') && str_contains($out, 'anna@cold1.com'), 'health report text');
 Illuminate\Support\Facades\Artisan::call('sender:health'); ok(count($g->sent) === 1 && str_contains($g->sent[0]['raw'], 'To: jiten.headford@gmail.com'), 'health report email gaya');
 Illuminate\Support\Facades\Artisan::call('sender:backup'); ok(str_contains(Illuminate\Support\Facades\Artisan::output(), 'Backup: sender-'), 'backup bana');
+// health: fresh tick => scheduler_ok
+App\Models\Setting::put('beat_tick', now()->toIso8601String());
+$h = json_decode($call('GET', '/api/health')->getContent(), true);
+ok($h['scheduler_ok'] === true && isset($h['mins_since_tick']), 'health: fresh tick = scheduler ok');
+// health: stale tick => scheduler band
+App\Models\Setting::put('beat_tick', now()->subMinutes(30)->toIso8601String());
+$h2 = json_decode($call('GET', '/api/health')->getContent(), true);
+ok($h2['scheduler_ok'] === false, 'health: 30-min purana tick = scheduler band');
+// backup/latest: koi na ho to bana ke 200 bheje
+$bk = $call('GET', '/api/backup/latest');
+ok($bk->getStatusCode() === 200, 'backup/latest: 200 (backup bana ke bheja)');
+
 done();

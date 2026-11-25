@@ -27,4 +27,6 @@ Route::prefix('api')->middleware(ApiToken::class)->withoutMiddleware([\Illuminat
     Route::get('/sync', [ApiController::class, 'sync']);
     Route::post('/suppressions', [ApiController::class, 'suppressions']);
     Route::get('/ping', fn () => ['ok' => true, 'time' => now()->toIso8601String()]);
+    Route::get('/health', [ApiController::class, 'health']);
+    Route::get('/backup/latest', [ApiController::class, 'backupLatest']);
 });

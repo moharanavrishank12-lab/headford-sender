@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Lead;
+use App\Models\Setting;
 use App\Models\Suppression;
 use App\Services\Stats;
 use Illuminate\Http\Request;
@@ -82,5 +83,41 @@ class ApiController extends Controller
         }
 
         return response()->json(['added' => $n]);
+    }
+
+    /** Cron zinda hai? (scheduler har minute beat_tick likhta hai) PC isse dekh ke alert deta hai. */
+    public function health()
+    {
+        $tick = Setting::get('beat_tick');
+        $rep = Setting::get('beat_replies');
+        $mins = $tick ? abs((int) now()->diffInMinutes(\Carbon\Carbon::parse($tick), false)) : null;
+        $s = Stats::summary();
+
+        return response()->json([
+            'now' => now()->toIso8601String(),
+            'last_tick' => $tick,
+            'last_replies' => $rep,
+            'mins_since_tick' => $mins,
+            'scheduler_ok' => $mins !== null && $mins <= 5,
+            'stock' => $s['stock'], 'stock_days' => $s['stock_days'], 'active_ids' => $s['active_ids'],
+        ]);
+    }
+
+    /** Sabse naya backup (off-site copy ke liye PC roz utha leta hai). Na ho to abhi ek bana deta hai. */
+    public function backupLatest()
+    {
+        $dir = storage_path('app/private/backups');
+        $all = glob($dir.'/sender-*.json.gz') ?: [];
+        if (! $all) {
+            \Illuminate\Support\Facades\Artisan::call('sender:backup');
+            $all = glob($dir.'/sender-*.json.gz') ?: [];
+        }
+        if (! $all) {
+            return response()->json(['error' => 'koi backup nahi'], 404);
+        }
+        sort($all);
+        $file = end($all);
+
+        return response()->download($file, basename($file), ['Content-Type' => 'application/gzip']);
     }
 }

@@ -22,9 +22,12 @@ else
   php artisan key:generate --force
 fi
 mkdir -p storage/app/private storage/framework/{cache,sessions,views} storage/logs
-chmod -R ug+rwX storage bootstrap/cache
+chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
 php artisan migrate --force
-php artisan config:cache && php artisan route:cache && php artisan view:cache
+php artisan config:clear >/dev/null 2>&1 || true
+php artisan config:cache 2>/dev/null || true
+php artisan route:cache 2>/dev/null || true
+php artisan view:cache 2>/dev/null || true
 echo
 echo "=================== HO GAYA ==================="
 echo "PC Lead Manager > Instructions > 5. Cloud sender mein daalo:"
