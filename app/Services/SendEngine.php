@@ -62,7 +62,7 @@ class SendEngine
         if (! $zones) {
             return $out + ['note' => 'koi window khula nahi'];
         }
-        if (trim((string) \App\Models\Setting::get('address', '')) === '') {
+        if (trim((string) (\App\Models\Setting::get('address', '') ?: 'Milrose Lane')) === '') {
             Alerts::raise('address', 'Signature mein business address nahi hai - jab tak nahi daaloge, koi email nahi jayegi (US CAN-SPAM).');
 
             return $out + ['note' => 'address nahi'];

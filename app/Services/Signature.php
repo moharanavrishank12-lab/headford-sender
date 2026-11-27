@@ -9,7 +9,9 @@ class Signature
 {
     public static function for(Account $a): string
     {
-        $lines = array_filter([$a->from_name, Setting::get('company_line', 'HeadFord'), Setting::get('address', '')], fn ($x) => trim((string) $x) !== '');
+        $company = trim((string) Setting::get('company_line', '')) ?: 'HeadFord e-Commerce';
+        $address = trim((string) Setting::get('address', '')) ?: "Milrose Lane\nMonsey - 19052";
+        $lines = array_filter(['Regards,', $a->from_name, $company, $address], fn ($x) => trim((string) $x) !== '');
 
         return implode("\n", $lines);
     }
